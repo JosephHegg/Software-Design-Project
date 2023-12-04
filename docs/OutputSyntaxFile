@@ -1,0 +1,18 @@
+@startuml
+skinparam class {
+       BackgroundColor<<component>> LightGreen
+       BackgroundColor<<decorator>> LightGreen
+       BackgroundColor<<target>> Red
+       BackgroundColor<<adapter>> Red
+       BackgroundColor<<adaptee>> Red
+       BackgroundColor<<favorCompositionOverInheritance>> Yellow
+}
+autoactivate on
+[-[#blue]> ":TrainwreckTests.PLKViolation.A" : TrainwreckTests.PLKViolation.A.callC()
+":TrainwreckTests.PLKViolation.A" -[#FireBrick]> ":TrainwreckTests.PLKViolation.B": TrainwreckTests.PLKViolation.B.getC()
+":TrainwreckTests.PLKViolation.B" --> ":TrainwreckTests.PLKViolation.A": TrainwreckTests.PLKViolation.C
+":TrainwreckTests.PLKViolation.A" -[#blue]> ":TrainwreckTests.PLKViolation.C": TrainwreckTests.PLKViolation.C.call()
+":TrainwreckTests.PLKViolation.C" --> ":TrainwreckTests.PLKViolation.A": void
+[<-- ":TrainwreckTests.PLKViolation.A": void
+@enduml
+

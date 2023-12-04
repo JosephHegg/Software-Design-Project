@@ -1,0 +1,113 @@
+package Presentation;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.Set;
+
+import com.sun.corba.se.spi.orbutil.fsm.Input;
+
+import DataSource.ASM;
+import DataSource.ASMBaseParser;
+import DataSource.ASMParseData;
+import DataSource.AbstractParser;
+import DataSource.FileHandler;
+import DataSource.ParseBehavior;
+import Domain.AdapterPatternAnalyzer;
+import Domain.Appearance;
+import Domain.DecoratorPatternAnalyzer;
+import Domain.DefaultAppearance;
+import Domain.Diagram;
+import Domain.FavorCompositonOverInheritanceViolationAnalyzer;
+
+public class Main {
+
+	private List<Argument> arguments;
+	private FrontEnd frontEnd;
+	private FileHandler fileHandler = new FileHandler();
+
+	public static void main(String[] args) {
+		Main main = new Main(args);
+	}
+
+	public Main(String[] args) {
+		this.arguments = new ArrayList<Argument>();
+		this.arguments.add(new RecursiveArgument());
+		this.arguments.add(new AccessModifierFilterArgument());
+
+		this.frontEnd = new Console();
+		this.parseArgs(args);
+	}
+
+	private void parseArgs(String[] args) {
+		List<String> argumentSwitches = new ArrayList<>();
+		List<String> classNames = new ArrayList<>();
+
+		for (int i = 0; i < args.length; i++) {
+			if (args[i].startsWith("-")) {
+				argumentSwitches.add(args[i].substring(1));
+			} else {
+				classNames.add(args[i]);
+			}
+		}
+
+		Set<Argument> parseArguments = new HashSet<>();
+
+		for (int i = 0; i < arguments.size(); i++) {
+			for (int j = 0; j < argumentSwitches.size(); j++) {
+				if(argumentSwitches.get(j).contains(":")) {
+					String additionalInfo = argumentSwitches.get(j).substring(argumentSwitches.get(j).indexOf(":") + 1);
+					arguments.get(i).setAdditionalInfo(additionalInfo);
+				}
+				
+				String switchWithoutAdditionalInfo = argumentSwitches.get(j);
+				if(argumentSwitches.get(j).contains(":"))
+				 switchWithoutAdditionalInfo = argumentSwitches.get(j).substring(0, argumentSwitches.get(j).indexOf(":"));
+				
+				if (arguments.get(i).getSwitch().equals(switchWithoutAdditionalInfo)) {
+					parseArguments.add(this.arguments.get(i));
+				}
+			}
+		}
+
+		Set<String> classes = new HashSet<String>();
+
+		for (String className : classNames) {
+			classes.add(className);
+		}
+		
+		ASMParseData parseData = new ASMParseData(new ASM(), classes);
+		AbstractParser asmParser = new ASMBaseParser(parseData);
+		
+		for(Argument parseArg : parseArguments) {
+			asmParser = parseArg.getParseBehavior(parseData, asmParser);
+		}
+
+		doParse(asmParser);
+	}
+
+	public void doParse(AbstractParser asmParser) {
+		List<String> classNamesInvalid = new ArrayList<>();
+
+		Diagram diagram = asmParser.doParseBehavior();
+		StringBuilder sb = new StringBuilder();
+		
+		FavorCompositonOverInheritanceViolationAnalyzer composition = new FavorCompositonOverInheritanceViolationAnalyzer(diagram);
+<<<<<<< HEAD
+		AdapterPatternAnalyzer adapter = new AdapterPatternAnalyzer(diagram);
+		adapter.analyze();
+=======
+		DecoratorPatternAnalyzer decoratorAnalyzer = new DecoratorPatternAnalyzer(diagram);
+>>>>>>> DecoratorPatternBranch
+		composition.analyze();
+		decoratorAnalyzer.analyze();
+
+		diagram.generate(sb);
+
+		fileHandler.writeToFile("./docs/OutputSyntaxFile", sb);
+
+	}
+}

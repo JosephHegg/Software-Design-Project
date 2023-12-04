@@ -1,0 +1,65 @@
+C Grade Part Configurations
+
+String:
+
+java.lang.String 
+java.io.Serializable
+java.lang.CharSequence
+java.lang.Comparable<String>
+
+1-1 Homework 
+
+polymorphism.LoggerImpl
+polymorphism.Main
+polymorphism.DomainDetails.Arrow
+polymorphism.DomainDetails.Logger
+polymorphism.DomainDetails.SideEffect
+polymorphism.DomainDetails.State
+polymorphism.StateMachines.AbcStateMachine
+polymorphism.StateMachines.StateMachine
+polymorphism.StateMachines.StateMachineFactory
+polymorphism.StateMachines.SumOfDigEqual3Machine
+polymorphism.FileWriter
+
+B Grade Part Configurations
+
+-r javax.swing.JComponent
+
+A Grade Part Configurations
+
+-f:public
+DataSource.ASM
+DataSource.ASMParser
+DataSource.FileHandler
+DataSource.ParseBehavior
+DataSource.Parser
+DataSource.PrivateParse
+DataSource.ProtectedParse
+DataSource.PublicParse
+DataSource.RecursiveParse
+Domain.Appearance
+Domain.Arrow
+Domain.ClassElement
+Domain.DefaultAppearance
+Domain.FieldElement
+Domain.Generator
+Domain.InterfaceElement
+Domain.MethodDescriptor
+Domain.MethodElement
+Domain.PackageElement
+Domain.ParameterElement
+Domain.Project
+Domain.UMLElement
+Presentation.AccessModifierFilterArgument
+Presentation.Argument
+Presentation.ArrowGenerator
+Presentation.ClassGenerator
+Presentation.Console
+Presentation.FieldGenerator
+Presentation.FrontEnd
+Presentation.InterfaceGenerator
+Presentation.MethodGenerator
+Presentation.NoteGenerator
+Presentation.PackageGenerator
+Presentation.ParameterGenerator
+Presentation.RecursiveArgument

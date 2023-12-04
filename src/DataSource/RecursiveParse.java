@@ -1,0 +1,233 @@
+package DataSource;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import Domain.Appearance;
+import Domain.DefaultAppearance;
+import Domain.Diagram;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.signature.SignatureReader;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldNode;
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.LocalVariableNode;
+import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MethodNode;
+
+public class RecursiveParse extends ParseDecorator {
+	
+	private Set<String> noRecursiveParse;
+	private Set<String> seenClassNodes = new HashSet<>();
+	private ASMParseData asmParseData;
+	
+	public RecursiveParse(ASMParseData asmParseData, AbstractParser parser) {
+		super(asmParseData, parser);
+		this.asmParseData = asmParseData;
+		this.noRecursiveParse = new HashSet<>();
+		buildNoRecursiveParse();
+	}
+
+	private void buildNoRecursiveParse() {
+		noRecursiveParse.add("java.lang.Object");
+		noRecursiveParse.add("java.lang.Object[]");
+		noRecursiveParse.add("int");
+		noRecursiveParse.add("boolean");
+		noRecursiveParse.add("long");
+		noRecursiveParse.add("short");
+		noRecursiveParse.add("byte");
+		noRecursiveParse.add("float");
+		noRecursiveParse.add("void");
+		noRecursiveParse.add("char");
+		noRecursiveParse.add("double");
+		noRecursiveParse.add("int[]");
+		noRecursiveParse.add("boolean[]");
+		noRecursiveParse.add("long[]");
+		noRecursiveParse.add("short[]");
+		noRecursiveParse.add("byte[]");
+		noRecursiveParse.add("float[]");
+		noRecursiveParse.add("char[]");
+		noRecursiveParse.add("double[]");
+	}
+
+	@Override
+	public Diagram doParseBehavior() {
+		recursivelyBuildParseNames(((ASMParseData) this.parseData).classNamesToParse,
+				getClassNodes(((ASMParseData) this.parseData).classNamesToParse), asmParseData.recursiveDepth);
+		
+		return this.parser.doParseBehavior();
+	}
+	
+	private void addIfAbleToParse(Set<String> setToAddTo, String className) {
+		if(!noRecursiveParse.contains(className)) {
+			setToAddTo.add(className);
+		}
+	}
+	
+	private String getReplacedSlashName(String name) {
+		return ((ASMParseData) this.parseData).replaceSlashes(name);
+	}
+
+	private List<ClassNode> getClassNodes(Set<String> names) {
+		List<ClassNode> classNodes = new ArrayList<>();
+		ASMParseData asmParseData = (ASMParseData) this.parseData;
+
+		for (String name : names) {
+			try {
+				String className = removeBrackets(getReplacedSlashName(name));
+				if(!noRecursiveParse.contains(className) && !this.seenClassNodes.contains(className)) {
+					ClassNode classNode = asmParseData.getClassNode(className);
+					if(classNode != null) {
+						this.seenClassNodes.add(className);
+						classNodes.add(classNode);
+					}
+				}
+			} catch (IOException e) {
+			}
+		}
+
+		return classNodes;
+	}
+
+	private String removeBrackets(String className) {
+		int indexOfBracket = className.indexOf('[');
+		
+		if(indexOfBracket != -1) {
+			return className.substring(0, indexOfBracket);
+		}
+		
+		return className;
+	}
+
+	private void recursivelyBuildParseNames(Set<String> namesToParse, List<ClassNode> classNodes, int recursiveDepth) {
+		if (classNodes.size() == 0 || recursiveDepth == 0) {
+			return;
+		}
+
+		for (ClassNode classNode : classNodes) {
+			addAllSuperTypeNames(namesToParse, classNode);
+		}
+
+		recursivelyBuildParseNames(namesToParse, getClassNodes(namesToParse), recursiveDepth - 1);
+	}
+
+	private void addAllSuperTypeNames(Set<String> namesToParse, ClassNode classNode) {
+		if(classNode.superName != null) {
+			addIfAbleToParse(namesToParse, removeBrackets(getReplacedSlashName(classNode.superName)));
+		}
+		
+		if(classNode.interfaces != null) {
+			for (String implementedInterface : classNode.interfaces) {
+				addIfAbleToParse(namesToParse, removeBrackets(getReplacedSlashName(implementedInterface)));
+			}
+		}
+		
+		addFields(classNode, namesToParse);
+		addMethodDependencies(classNode, namesToParse);
+	}
+	
+	private void addMethodDependencies(ClassNode classNode, Set<String> fieldAndDependencyNames) {
+		if (classNode.methods != null) {
+			for (MethodNode method : classNode.methods) {
+				addMethodReturnTypeDependency(fieldAndDependencyNames, method);
+				addMethodParameterDependencies(fieldAndDependencyNames, method);
+				addLocalVariableDependencies(fieldAndDependencyNames, method);
+			}
+		}
+	}
+
+	private void addLocalVariableDependencies(Set<String> fieldAndDependencyNames, MethodNode method) {
+		
+		InsnList instructions = method.instructions;
+		for (int i = 0; i < instructions.size(); i++) {
+			AbstractInsnNode methodCall = instructions.get(i);
+
+			if (!(methodCall instanceof MethodInsnNode))
+				continue;
+
+			MethodInsnNode methodNode = (MethodInsnNode) methodCall;
+
+			if (methodNode.name.equals("<init>")) {
+				ClassNode classNode = null;
+				try {
+					classNode = this.asmParseData.getClassNode(methodNode.owner);
+				}	catch(IOException e) {
+				}
+
+				String classDesc = "L" + methodNode.owner + ";";
+				List<String> toParseNames;
+				
+				if(classNode != null)
+					toParseNames = this.visitAndReturnClasses(classNode.signature, classDesc);
+				else
+					toParseNames = new ArrayList<String>();
+				
+				
+				for(String name : toParseNames)
+					addIfAbleToParse(fieldAndDependencyNames, name);
+			}
+		}
+	}
+
+	private void addMethodReturnTypeDependency(Set<String> fieldAndDependencyNames, MethodNode method) {
+		String returnTypeName = removeBrackets(getReplacedSlashName(Type.getReturnType(method.desc).getClassName()));
+		addIfAbleToParse(fieldAndDependencyNames, returnTypeName);
+	}
+
+	private void addMethodParameterDependencies(Set<String> fieldAndDependencyNames, MethodNode method) {
+		Type[] parameterTypes = Type.getArgumentTypes(method.desc);
+		for (int i = 0; i < parameterTypes.length; i++) {
+			String parameterTypeName = removeBrackets(getReplacedSlashName(parameterTypes[i].getClassName()));
+			addIfAbleToParse(fieldAndDependencyNames, parameterTypeName);
+		}
+	}
+
+	private void addFields(ClassNode classNode, Set<String> fieldAndDependencyNames) {
+		if (classNode.fields != null) {
+			for (FieldNode field : classNode.fields) {
+				//String fieldName = removeBrackets(getReplacedSlashName(Type.getType(field.desc).getClassName()));
+				List<String> fieldNames = visitAndReturnClasses(field.signature, field.desc);
+				for(String fieldName : fieldNames)
+					addIfAbleToParse(fieldAndDependencyNames, fieldName);
+			}
+		}
+	}
+	
+	
+	private List<String> visitAndReturnClasses(String signature, String desc) {
+		List<String> returnList = new ArrayList<>();
+		MyVisitor visitor = new MyVisitor();
+		
+		String className = this.asmParseData.replaceSlashes(Type.getType(desc).getClassName());
+		if (desc.contains("[")) {
+			String arrClassName = className.substring(0, className.indexOf("["));
+			returnList.add(arrClassName);
+			return returnList;
+		}
+		if (signature == null) { // Return empty list so we know that we don't
+									// have multiple
+			returnList.add(className);
+			return returnList;
+		}
+
+		SignatureReader reader = new SignatureReader(signature);
+		reader.accept(visitor);
+		
+		Set<String> addedClasses = new HashSet<>();
+		for(String seenClass : visitor.seenClasses) {
+			if(!addedClasses.contains(seenClass)) {
+				returnList.add(this.asmParseData.replaceSlashes(seenClass));
+				addedClasses.add(seenClass);
+			}
+		}
+		
+		return returnList;
+	}
+}

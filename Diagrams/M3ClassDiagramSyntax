@@ -1,0 +1,472 @@
+@startuml
+class presentation.ClassMain {
+ -arguments : List<Argument>
+ -frontEnd : FrontEnd
+ -fileHandler : FileHandler
+ +ClassMain(args : String[])
+ -parseArgs(args : String[]) : void
+ -doParse(asmParser : ClassAbstractParser) : void
+}
+
+presentation.ClassMain ..> presentation.RecursiveArgument
+presentation.ClassMain ..> presentation.AccessModifierFilterArgument
+presentation.ClassMain ..> datasource.ASM
+presentation.ClassMain ..> datasource.ASMParseData
+presentation.ClassMain ..> datasource.ASMBaseParser
+presentation.ClassMain ..> datasource.ClassAbstractParser
+presentation.ClassMain --> presentation.FrontEnd
+ 
+class presentation.SequenceMain {
+ -arguments : List<Argument>
+ -frontEnd : frontEnd
+ -fileHandler : FileHandler
+ +SequenceMain(args : String[]) 
+ -parseArgs(args : String[]) : void
+ -doParse(sequenceParser : SequenceAbstractParser) : void
+}
+
+presentation.SequenceMain ..> presentation.SequenceRecursiveArgument
+presentation.SequenceMain ..> datasource.ASM
+presentation.SequenceMain ..> datasource.SequenceParseData
+presentation.SequenceMain ..> datasource.SequenceBaseParser
+presentation.SequenceMain ..> datasource.SequenceAbstractParser
+presentation.SequenceMain --> presentation.FrontEnd
+
+interface presentation.Argument {
+ +getSwitch() : String
+ +getParseBehavior(asmParseData : ASMParseData, classAbstractParser : ClassAbstractParser) : ClassAbstractParser
+ +getDescription() : String
+ +setAdditionalInfo(info : String) : void
+}
+
+presentation.Argument ..> datasource.ASMParseData
+presentation.Argument ..> datasource.ClassAbstractParser
+
+interface presentation.FrontEnd {
+ +getInput() : String
+ +showOutput(msg : String) : void
+ +close() : void
+}
+
+class presentation.AccessModifierFilterArgument implements presentation.Argument {
+ +getSwitch() : String
+ +getParseBehavior(asmParseData : ASMParseData, classAbstractParser : ClassAbstractParser) : ClassAbstractParser
+ +getDescription() : String
+ +setAdditionalInfo(info : String) : void
+}
+
+presentation.AccessModifierFilterArgument ..> datasource.PublicParse
+presentation.AccessModifierFilterArgument ..> datasource.PrivateParse
+presentation.AccessModifierFilterArgument ..> datasource.ProtectedParse
+
+class presentation.ClassGenerator implements domain.Generator {
+ -classElement : ClassElement 
+ -primitives : Set<String>
+ -drawnAssociations : Set<String>
+ -drawnDependencies : Set<String>
+ +ClassGenerator(classElement : ClassElement)
+ +generate(appearance : Appearance, sb : StringBuilder, diagram : Diagram) : void
+ -generateChildren(sb : StringBuilder, diagram : Diagram) : void
+ -generateRelations(sb : StringBuilder, diagram : Diagram) : void
+ +hasDrawnAssociationTo(otherClassName : String) : boolean
+ +hasDrawnDependencyTo(otherClassName : String) : boolean
+ -getAccessSymbol(accessMod : String) : String
+}
+
+presentation.ClassGenerator --> domain.ClassElement
+presentation.ClassGenerator ..> domain.Diagram
+
+class presentation.Console implements presentation.FrontEnd {
+ -scanner : Scanner 
+ +getInput() : String
+ +showOutput(msg : String) : void
+ +close() : void
+}
+
+class presentation.DoNothingGenerator implements domain.Generator {
+ +generate(appearance : Appearance, sb : StringBuilder, diagram : Diagram) : void
+}
+
+class presentation.FieldGenerator implements domain.Generator {
+ -fieldElement : FieldElement 
+ +FieldElement(fieldElement : FieldElement)
+ +generate(appearance : Appearance, sb : StringBuilder, diagram : Diagram) : void
+ -getAccessSymbol(accessMod : String) : String
+}
+
+presentation.FieldGenerator --> domain.FieldElement
+
+class presentation.InterfaceGenerator implements domain.Generator {
+ -interfaceElement : InterfaceElement 
+ -drawnDependencies : Set<String> 
+ +InterfaceGenerator(interfaceElement : InterfaceElement)
+ +generate(appearance : Appearance, sb : StringBuilder, diagram : Diagram) : void
+ +generateRelations(sb : StringBuilder, diagram : Diagram) 
+ +hasDrawnDependencyTo(otherClassName : String) : boolean 
+ -getAccessSymbol(accessMod : String) : String
+}
+
+presentation.InterfaceGenerator --> domain.InterfaceElement 
+
+class presentation.MethodGenerator implements domain.Generator {
+ -methodElement : MethodElement 
+ +MethodGenerator(methodElement : MethodElement) 
+ +generate(appearance : Appearance, sb : StringBuilder, diagram : Diagram) : void
+ -getAccessSymbol(accessMod : String) : String
+}
+
+presentation.MethodGenerator --> domain.MethodElement
+
+class presentation.ParameterGenerator implements domain.Generator {
+ -parameterElement : ParameterElement
+ +generate(appearance : Appearance, sb : StringBuilder, diagram : Diagram) : void
+}
+
+presentation.ParameterGenerator --> domain.ParameterElement
+
+class presentation.RecursiveArgument implements presentation.Argument {
+ +getSwitch() : String
+ +getParseBehavior(asmParseData : ASMParseData, classAbstractParser : ClassAbstractParser) : ClassAbstractParser
+ +getDescription() : String
+ +setAdditionalInfo(info : String) : void
+}
+
+presentation.RecursiveArgument ..> datasource.RecursiveParse
+
+interface presentation.SequenceArgument {
+ +getSwitch() : String
+ +getParseBehavior(sequenceParseData : SequenceParseData, sequenceAbstractParser : SequenceAbstractParser) : SequenceAbstractParser
+ +getDescription() : String
+ +setAdditionalInfo(info : String) : void
+}
+
+presentation.SequenceArgument ..> datasource.SequenceParseData
+presentation.SequenceArgument ..> datasource.SequenceAbstractParser
+
+class presentation.SequenceRecursiveArgument implements presentation.SequenceArgument {
+ +getSwitch() : String
+ +getParseBehavior(sequenceParseData : SequenceParseData, classAbstractParser : SequenceAbstractParser) : SequenceAbstractParser
+ +getDescription() : String
+ +setAdditionalInfo(info : String) : void
+}
+
+interface domain.AccessModifierComparator {
+ +compare(accessMod : String) : boolean
+}
+
+interface domain.DiagramFilter {
+ +filterDiagram(diagramElements : List<DiagramElement>) : void
+}
+
+interface domain.Generator {
+ +generate(appearance : Appearance, sb : StringBuilder, diagram : Diagram) : void
+}
+
+domain.Generator ..> domain.Appearance 
+domain.Generator ..> domain.Diagram
+
+class domain.AccessModifierFilter implements domain.DiagramFilter {
+ -touchedElementNames : Set<String>
+ -comparator : AccessModifierFilter
+ +AccessModifierFilter(comparator : AccessModifierFilter)
+ +filterDiagram(diagramElements : List<DiagramElement>) : void
+ -filterInterface(interfaceElement : InterfaceElement) : void
+ -filterClass(classElement : ClassElement) : void
+ -removeFields(fields : List<DiagramElement>) : void
+ -removeMethods(methods : List<DiagramElement>) : void
+ -isClass(diagramElement : DiagramElement) : boolean
+ -isInterface(diagramElement : DiagramElement) : boolean
+}
+
+domain.AccessModifierFilter --> domain.AccessModifierComparator
+domain.AccessModifierFilter ..> domain.ClassElement 
+domain.AccessModifierFilter ..> domain.InterfaceElement
+domain.AccessModifierFilter ..> domain.MethodElement
+domain.AccessModifierFilter ..> domain.FieldElement
+
+abstract class domain.Appearance {
+ +color : String
+ +Appearance(color : String) 
+ +Appearance()
+}
+
+class domain.DefaultAppearance extends domain.Appearance {
+ +DefaultAppearance()
+}
+
+class domain.ClassElement extends domain.DiagramElement {
+ +accessModifier : String
+ +keywords : List<String>
+ +fields : List<DiagramElement>
+ +methods : List<DiagramElement>
+ +interfaces : List<DiagramElement>
+ +superClass : DiagramElement
+ +dependencies : Map<String, String> 
+ +associations : Map<String, String> 
+ +ClassElement(appearance : Appearance, name : String, accessModifier : String, keywords : List<String>) 
+ +ClassElement(appearance : Appearance, name : String)
+ +setInterfacesList(interfaces : List<DiagramElement>) : void
+ +setSuperClass(superClass : DiagramElement) : void
+ +setDependencies(dependencies : Map<String, String>) : void
+ +setAssociations(associations : Map<String, String>) : void
+ +setFields(fields : List<DiagramElement>) : void
+ +hasDependencyTo(otherClassName : String) : boolean
+ +hasAssociation(otherClassName : String) : boolean
+ +setMethods(methods : List<DiagramElement>) : void
+ +hasDrawnAssociationsTo(otherClassName : String) : boolean
+ +hasDrawnDependencyTo(otherClassName : String) : boolean
+ +hasMultipleAssociationsTo(otherClassName : String) : boolean
+ +hasMultipleDependenciesTo(otherClassName : String) : boolean
+}
+
+domain.ClassElement "1" --> "*" domain.DiagramElement
+domain.ClassElement ..> presentation.ClassGenerator
+
+class domain.Diagram {
+ -diagramElements : List<DiagramElement>
+ -filter : DiagramFilter
+ +Diagram(diagramElements : List<DiagramElement>) 
+ +generate(sb : StringBuilder) : void
+ +setDiagramFilter(filter : DiagramFilter) : void
+ +findDiagramElement(nameToFind : String, type : Class<T>) : T
+}
+
+domain.Diagram --> domain.DiagramFilter 
+domain.Diagram "1" --> "*" domain.DiagramElement
+
+abstract class domain.DiagramElement {
+ #appearnace : Appearance 
+ #generator : Generator 
+ +name : String
+ +DiagramElement(appearance : Appearance, name : String) 
+ +setAppearance(appearance : Appearance) : void
+ +setGenerator(generator : Generator) : void
+ +generate(sb : StringBuilder, diagram : Diagram) : void
+}
+
+domain.DiagramElement --> domain.Appearance 
+domain.DiagramElement --> domain.Generator
+domain.DiagramElement ..> domain.Diagram
+
+class domain.FieldElement extends domain.DiagramElement {
+ +keywords : List<String> 
+ +type : String 
+ +accessModifier : String
+ +FieldElement(appearance : Appearance, name : String, type : String, accessModifier : String, 
+keywords : List<String>)
+}
+
+class domain.InterfaceElement extends domain.DiagramElement {
+ +keywords : List<String>
+ +accessModifier : String
+ +methods : List<DiagramElement>
+ +extendedInterfaces : List<DiagramElement>
+ +dependencies : Map<String, String> 
+ +superClass : ClassElement 
+ +InterfaceElement(appearance : Appearance, name : String, accMod : String, keywords : List<String>)
+ +setInterfaces(extInterfaces : List<DiagramElement>)
+ +setSuperClass(ce : ClassElement) : void
+ +setMethods(methods : List<DiagramElement) : void
+ +setDependencies(dependencies : Map<String, String>) : void
+ +hasDependencyTo(otherClassName : String) : boolean
+ +generateChildren(sb : StringBuilder, diagram : Diagram) : void
+ +hasDrawnDependencyTo(otherClassName : String) : boolean 
+ +hasMultipleDependenciesTo(otherClassName : String) : boolean 
+}
+
+domain.InterfaceElement ..> presentation.InterfaceGenerator 
+domain.InterfaceElement "1" --> "*" domain.DiagramElement
+domain.InterfaceElement --> domain.ClassElement
+
+class domain.MethodElement extends domain.DiagramElement {
+ +returnType : String
+ +accessModifier : String
+ +keywords : List<String>
+ +MethodElement(appearance : appearance, name : String, returnType : String, accessModifer : String, keywords : List<String>, params : List<DiagramElement>)
+ +generateParams(sb : StringBuilder, diagram : Diagram) : void
+}
+
+domain.MethodElement "1" --> "*" domain.DiagramElement
+domain.MethodElement ..> domain.Diagram
+
+class domain.ParameterElement extends domain.DiagramElement {
+ +keywords : List<String>
+ +type : String
+ +ParameterElement(appearance : Appearance, name : String, type : String, keywords : List<String>)
+}
+
+class domain.PrimitiveElement extends domain.DiagramElement {
+ +PrimitiveElement(appearance : Appearance, name : String) 
+}
+
+class domain.PrivateComparator implements domain.AccessModifierComparator {
+ +compare(accessMod : String) : boolean
+}
+
+class domain.ProtectedComparator implements domain.AccessModifierComparator {
+ +compare(accessMod : String) : boolean
+}
+
+class domain.PublicComparator implements domain.AccessModifierComparator {
+ +compare(accessMod : String) : boolean
+}
+
+
+abstract class datasource.ClassAbstractParser {
+ #asmParseData : ASMParseData
+ +ClassAbstractParser(asmParseData : ASMParseData)
+ {abstract} +doParseBehavior() : Diagram
+}
+
+datasource.ClassAbstractParser --> datasource.ASMParseData
+
+class datasource.ASM {
+ +getClassNode(className : String) : ClassNode 
+}
+
+class datasource.ASMBaseParser extends datasource.ClassAbstractParser {
+ -asmParseData : ASMParseData
+ -classNodes : List<ClassNode>
+ -classesAndInterfaces : Map<String, DiagramElement>
+ -elements : List<DiagramElement>
+ -primitives : Set<String>
+ -collections : List<String>
+ +ASMBaseParser(asmParseData : ASMParseData)
+ +doParseBehavior() : Diagram
+ +getClassNode(className : String) : ClassNode
+ +createClassOrInterfaceElementFromClassNode(c : ClassNode) : DiagramElement
+ +addDiagramElementsToInterface(c : ClassNode) 
+ +createDependenciesForInterface(c : ClassNode) : Map<String, String>
+ +addElementToRelationMap(className : String, val : String, relationMap : Map<String, String>) : void
+ +isPrimitive(className : String) : boolean
+ +visitNodesAndAddToMap(sig : String, desc : String, map : Map<String, String>) : void
+ +addDiagramElementsToClass(c : ClassNode) : void
+ +createInterfaceElementsForClassNode(c : ClassNode) : List<DiagramElement>
+ +createSuperClassElementForClassNode(c : ClassNode) : DiagramElement
+ +createDependenciesForClassNode(c : ClassNode) : Map<String, String>
+ -addMethodSignatureDependencies(m : MethodNode, dependencies : Map<String, String>)
+ -addLocalVariableDependencies(m : MethodNode, dependencies : Map<String, String>)
+ -createMethodElementsForClassNode(classNode : ClassNode) : List<DiagramElement>
+ -createFieldElementsForClassNode(c : ClassNode, associations :  Map<String, String>) : List<DiagramElement>
+ -createInterfaceElementFromClassNode(c : ClassNode) : InterfaceElement
+ -createClassElementFromClassNode(c : ClassNode) : ClassElement
+ -createNamelessParameters(node : MethodNode, classNode : String) : List<DiagramElement>
+ -createParametersForMethodNode(node : MethodNode, className : String) : List<DiagramElement>
+ -getAccessModifierFromAccess(access : int) : String
+ -getKeywordsFromAccess(access : int) : List<String>
+ +visitAndReturnClasses(signature : String, desc : String, oneTimers : List<String>) : List<String>
+ +isCollection(className : String) : boolean
+ +getBaseClasses(visitor : MyVisitor, oneTimers : List<String>) : List<String>
+}
+
+datasource.ASMBaseParser "1" --> "*" domain.DiagramElement
+datasource.ASMBaseParser ..> domain.InterfaceElement
+datasource.ASMBaseParser ..> presentation.InterfaceGenerator
+datasource.ASMBaseParser ..> domain.ClassElement
+datasource.ASMBaseParser ..> presentation.ClassGenerator
+datasource.ASMBaseParser ..> domain.MethodElement
+datasource.ASMBaseParser ..> presentation.MethodGenerator
+datasource.ASMBaseParser ..> domain.FieldElement
+datasource.ASMBaseParser ..> presentation.FieldGenerator
+datasource.ASMBaseParser ..> domain.ParameterElement
+datasource.ASMBaseParser ..> presentation.ParameterGenerator
+datasource.ASMBaseParser ..> domain.DefaultAppearance
+datasource.ASMBaseParser ..> datasource.MyVisitor
+
+class datasource.ASMParseData {
+ +classNodes : List<ClassNodes>
+ +classNodeMap : Map<String, ClassNode> 
+ +classNamesToParse : Set<String>
+ +asm : ASM
+ +ASMParseData(asm : ASM, classNames : Set<String>) 
+ +getClassNode(className : String) : ClassNode
+ +replaceSlashes(className : String) : String
+}
+
+datasource.ASMParseData --> datasource.ASM
+
+abstract class datasource.ClassParseDecorator extends datasource.ClassAbstractParser {
+ #parser : ClassAbstractParser 
+ +ClassParseDecorator(asmParseData : ASMParseData, parser : ClassAbstractParser) 
+}
+
+class datasource.MyVisitor extends jdk.internal.org.objectweb.asm.signature.SignatureVisitor {
+ +isArray : boolean
+ +seenClasses : ArrayList
+ +MyVisitor() 
+ +visitClassType(className : String) : void
+}
+
+class datasource.PrivateParse extends datasource.ClassParseDecorator {
+ +PrivateParse(asmParseData : ASMParseData, classAbstractParser : ClassAbstractParser) 
+ +doParseBehavior() : Diagram
+}
+
+class datasource.ProtectedParse extends datasource.ClassParseDecorator {
+ +ProtectedParse(asmParseData : ASMParseData, classAbstractParser : ClassAbstractParser) 
+ +doParseBehavior() : Diagram
+}
+
+class datasource.PublicParse extends datasource.ClassParseDecorator {
+ +PublicParse(asmParseData : ASMParseData, classAbstractParser : ClassAbstractParser) 
+ +doParseBehavior() : Diagram
+}
+
+class datasource.RecursiveParse extends datasource.ClassParseDecorator {
+ -noRecursiveParse : Set<String>
+ -seenClassNodes : Set<String>
+ +RecursiveParse(asmParseData : ASMParseData, parser : ClassAbstractParser) 
+ -buildNoRecursiveParse() : void
+ +doParseBehavior() : Diagram
+ -addIfAbleToParse(setToAdd : Set<String>, className : String) : void
+ -getReplacedSlashName(name : String) : String
+ -getClassNodes(names : Set<String>) : List<ClassNode>
+ -removeBrackets(className : String) : String
+ -recursivelyBuildParseNames(namesToParse : Set<String>, classNodes : List<ClassNode>) : void
+ -addAllSuperTypeNames(namesToParse : Set<String>, classNode : ClassNode) : void
+ -addMethodDependencies(classNode : ClassNode, fieldAndDependencyNames : Set<String>) : void
+ -addLocalVariableDependencies(fieldAndDependencyNames : Set<String>, method : MethodNode) : void
+ -addMethodReturnTypeDependency(fieldAndDependencyNames : Set<String>, method : MethodNode) : void
+ -addMethodParameterDependencies(fieldAndDependencyNames : Set<String>, method : MethodNode) : void
+-addFields(classNode : ClassNode, fieldAndDependencyNames : Set<String>) : void
+}
+
+datasource.RecursiveParse ..> datasource.ASMParseData
+
+abstract class datasource.SequenceAbstractParser {
+ +parseData : SequenceParseData
+ +doParseBehavior(methodSignature : String) : Diagram
+ -parseMethodCalls(methodSignature : String, recursiveDepth : int, callee : String, caller : String) : void
+ -getMethodNodeWithName(methodName : String, methods : List<MethodNode>) : MethodNode
+ -getClassNodeWithName(className : String) : ClassNode
+ -getMethodNodeWithMatchingArgs(methodName : String, methodArgs : List<String>, methods : List<MethodNode>) : MethodNode
+ -isMethodCall(insnNode : AbstractInsnNode) : boolean
+ -buildMethodSignature(types : Type[], insnNode : MethodInsnNode, callee : String) : String
+ -getClassNameFromMethodSignature(methodSignature : String) : String
+ -getMethodArgsFromMethodSignature(methodSignature : String) : List<String>
+ -getMethodNameFromMethodSignature(methodSignature : String) : String
+}
+
+datasource.SequenceAbstractParser --> datasource.SequenceParseData
+
+class datasource.SequenceBaseParser extends datasource.SequenceAbstractParser {
+ +parseData : SequenceParseData
+ +doParseBehavior(methodSignature : String) : Diagram
+}
+
+class datasource.SequenceParseData {
+ +recursiveDepth : int
+ +asm : ASM
+ +getClassNode(className : String) : ClassNode
+ +replaceSlashes(className : String) : String
+}
+
+datasource.SequenceParseData --> datasource.ASM
+
+abstract class datasource.SequenceParseDecorator extends datasource.SequenceAbstractParser {
+ +parseData : SequenceParseData
+ +doParseBehavior(methodSignature : String) : Diagram
+}
+
+datasource.SequenceParseDecorator --> datasource.SequenceAbstractParser
+@enduml

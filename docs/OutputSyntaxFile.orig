@@ -1,0 +1,162 @@
+@startuml
+skinparam class {
+       BackgroundColor<<component>> LightGreen
+       BackgroundColor<<decorator>> LightGreen
+       BackgroundColor<<target>> Red
+       BackgroundColor<<adapter>> Red
+       BackgroundColor<<adaptee>> Red
+       BackgroundColor<<favorCompositionOverInheritance>> Yellow
+}
+<<<<<<< HEAD
++interface part1.SchemeFunction  <<target>>{
+{abstract}+handle(part1.MySchemeObject) : part1.MySchemeObject
+}
++class part2.JSchemeFunction  <<adapter>>{
+~s : java.lang.String
+~js : jscheme.JScheme
++<init>() : void
++handle(part1.MySchemeObject) : part1.MySchemeObject
+}
+part2.JSchemeFunction  .up.|>  part1.SchemeFunction
+part2.JSchemeFunction  -->  jscheme.JScheme : adapts
++class jscheme.JScheme  <<adaptee>>{
+-evaluator : jsint.Evaluator
++<init>() : void
++<init>(jsint.Evaluator) : void
+{static}+forCurrentEvaluator() : jscheme.JScheme
++getEvaluator() : jsint.Evaluator
+-enter() : void
+-exit() : void
++isDefined(java.lang.String) : boolean
++getGlobalValue(java.lang.String) : java.lang.Object
++setGlobalValue(java.lang.String, java.lang.Object) : void
++getGlobalSchemeProcedure(java.lang.String) : jscheme.SchemeProcedure
++load(java.io.Reader) : java.lang.Object
++load(java.lang.String) : java.lang.Object
++evalOrLoad(java.lang.String) : void
++call(jscheme.SchemeProcedure) : java.lang.Object
++call(jscheme.SchemeProcedure, java.lang.Object) : java.lang.Object
++call(jscheme.SchemeProcedure, java.lang.Object, java.lang.Object) : java.lang.Object
++call(jscheme.SchemeProcedure, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(jscheme.SchemeProcedure, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(jscheme.SchemeProcedure, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(jscheme.SchemeProcedure, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(jscheme.SchemeProcedure, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(jscheme.SchemeProcedure, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(jscheme.SchemeProcedure, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(jscheme.SchemeProcedure, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(jscheme.SchemeProcedure, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(jscheme.SchemeProcedure, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(jscheme.SchemeProcedure, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(jscheme.SchemeProcedure, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(jscheme.SchemeProcedure, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(jscheme.SchemeProcedure, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(jscheme.SchemeProcedure, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(jscheme.SchemeProcedure, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(jscheme.SchemeProcedure, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(jscheme.SchemeProcedure, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++apply(jscheme.SchemeProcedure, jscheme.SchemePair) : java.lang.Object
++apply(jscheme.SchemeProcedure, java.lang.Object[]) : java.lang.Object
++call(java.lang.String) : java.lang.Object
++call(java.lang.String, java.lang.Object) : java.lang.Object
++call(java.lang.String, java.lang.Object, java.lang.Object) : java.lang.Object
++call(java.lang.String, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(java.lang.String, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(java.lang.String, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(java.lang.String, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(java.lang.String, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(java.lang.String, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(java.lang.String, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(java.lang.String, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(java.lang.String, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(java.lang.String, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(java.lang.String, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(java.lang.String, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(java.lang.String, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(java.lang.String, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(java.lang.String, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(java.lang.String, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(java.lang.String, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++call(java.lang.String, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : java.lang.Object
++apply(java.lang.String, jscheme.SchemePair) : java.lang.Object
++eval(java.lang.String) : java.lang.Object
++eval(java.lang.Object) : java.lang.Object
++read(java.lang.String) : java.lang.Object
+{static}+list() : jscheme.SchemePair
+{static}+list(java.lang.Object) : jscheme.SchemePair
+{static}+list(java.lang.Object, java.lang.Object) : jscheme.SchemePair
+{static}+list(java.lang.Object, java.lang.Object, java.lang.Object) : jscheme.SchemePair
+{static}+list(java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : jscheme.SchemePair
+{static}+list(java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : jscheme.SchemePair
+{static}+list(java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : jscheme.SchemePair
+{static}+list(java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : jscheme.SchemePair
+{static}+list(java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : jscheme.SchemePair
+{static}+list(java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : jscheme.SchemePair
+{static}+list(java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : jscheme.SchemePair
+{static}+list(java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : jscheme.SchemePair
+{static}+list(java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : jscheme.SchemePair
+{static}+list(java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : jscheme.SchemePair
+{static}+list(java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : jscheme.SchemePair
+{static}+list(java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : jscheme.SchemePair
+{static}+list(java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : jscheme.SchemePair
+{static}+list(java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : jscheme.SchemePair
+{static}+list(java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : jscheme.SchemePair
+{static}+list(java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : jscheme.SchemePair
+{static}+list(java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : jscheme.SchemePair
+{static}+list(java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object) : jscheme.SchemePair
++write(java.lang.Object, java.io.PrintWriter, boolean) : void
++write(java.lang.Object, java.io.PrintWriter) : void
++display(java.lang.Object, java.io.PrintWriter) : void
++readEvalPrintLoop() : void
+{static}+booleanValue(java.lang.Object) : boolean
+{static}+byteValue(java.lang.Object) : byte
+{static}+charValue(java.lang.Object) : char
+{static}+shortValue(java.lang.Object) : short
+{static}+intValue(java.lang.Object) : int
+{static}+longValue(java.lang.Object) : long
+{static}+floatValue(java.lang.Object) : float
+{static}+doubleValue(java.lang.Object) : double
+{static}+toObject(boolean) : java.lang.Boolean
+{static}+toObject(byte) : java.lang.Object
+{static}+toObject(char) : java.lang.Object
+{static}+toObject(short) : java.lang.Object
+{static}+toObject(int) : java.lang.Object
+{static}+toObject(long) : java.lang.Object
+{static}+toObject(float) : java.lang.Object
+{static}+toObject(double) : java.lang.Object
+{static}+toObject(java.lang.Object) : java.lang.Object
+}
+=======
++abstract class DataSource.SequenceAbstractParser  <<component>>{
++<init>() : void
+{abstract}+doParseBehavior(java.lang.String) : Domain.Diagram
+}
++class DataSource.SequenceBaseParser {
+~parseData : DataSource.SequenceParseData
+~elements : java.util.List
+~asmParser : DataSource.ASMBaseParser
+~topLevel : int
+~classRecurser : DataSource.InheritanceRecursion
++<init>(DataSource.SequenceParseData) : void
++doParseBehavior(java.lang.String) : Domain.Diagram
++parseMethodCalls(java.lang.String, int, java.lang.String, java.lang.String) : Domain.MethodCallElement
+-getMethodNodeWithName(org.objectweb.asm.tree.ClassNode, java.lang.String) : org.objectweb.asm.tree.MethodNode
+-getClassNodeWithName(java.lang.String) : org.objectweb.asm.tree.ClassNode
+-getMethodNodeWithMatchingArgs(org.objectweb.asm.tree.ClassNode, java.lang.String, java.util.List) : org.objectweb.asm.tree.MethodNode
+-isMethodCall(org.objectweb.asm.tree.AbstractInsnNode) : boolean
+-buildMethodSignature(org.objectweb.asm.Type[], org.objectweb.asm.tree.MethodInsnNode, java.lang.String) : java.lang.String
++getClassNameFromMethodSignature(java.lang.String) : java.lang.String
+-getMethodArgsFromMethodSignature(java.lang.String) : java.util.List
++getMethodNameFromMethodSignature(java.lang.String) : java.lang.String
+}
+DataSource.SequenceBaseParser  -up-|>  DataSource.SequenceAbstractParser
++class DataSource.JavaFilterSequenceDecorator  <<decorator>>{
+-parser : DataSource.SequenceAbstractParser
++<init>(DataSource.SequenceAbstractParser) : void
++doParseBehavior(java.lang.String) : Domain.Diagram
+}
+DataSource.JavaFilterSequenceDecorator  -up-|>  DataSource.SequenceAbstractParser
+DataSource.JavaFilterSequenceDecorator  -->  DataSource.SequenceAbstractParser
+>>>>>>> RunConfigTesting
+@enduml
+

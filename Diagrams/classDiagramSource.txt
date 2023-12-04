@@ -1,0 +1,676 @@
+@startuml
+skinparam class {
+       BackgroundColor<<component>> LightGreen
+       BackgroundColor<<decorator>> LightGreen
+       BackgroundColor<<target>> Red
+       BackgroundColor<<adapter>> Red
+       BackgroundColor<<adaptee>> Red
+       BackgroundColor<<favorCompositionOverInheritance>> Yellow
+}
++class DataSource.PublicParse  <<decorator>>{
++<init>(DataSource.ASMParseData, DataSource.AbstractParser) : void
++doParseBehavior() : Domain.Diagram
+}
+DataSource.PublicParse  -up-|>  DataSource.ParseDecorator
+DataSource.PublicParse  ..>  Domain.AccessModifierFilter
+DataSource.PublicParse  ..>  DataSource.ParseDecorator
+DataSource.PublicParse  ..>  Domain.Diagram
+DataSource.PublicParse  ..>  DataSource.AbstractParser
+DataSource.PublicParse  ..>  DataSource.ASMParseData
++class Domain.FavorCompositonOverInheritanceViolationAnalyzer {
+-diagram : Domain.Diagram
++<init>(Domain.Diagram) : void
++analyze() : void
+-checkForAllMethodsOfSuperClass(Domain.ClassElement) : boolean
+-sameParameters(java.util.List, java.util.List) : boolean
+-checkForFieldOfSuperClass(Domain.ClassElement) : boolean
+-checkForAllAbstractMethods(Domain.ClassElement) : boolean
+}
+Domain.FavorCompositonOverInheritanceViolationAnalyzer  -->  Domain.Diagram
+Domain.FavorCompositonOverInheritanceViolationAnalyzer  ..>  Domain.ClassElement
++interface Presentation.FrontEnd {
+{abstract}+getInput() : java.lang.String
+{abstract}+showOutput(java.lang.String) : void
+{abstract}+close() : void
+}
++class DataSource.MyVisitor {
++isArray : boolean
++seenClasses : java.util.ArrayList
++<init>() : void
++visitClassType(java.lang.String) : void
+}
++class Domain.ClassElement  <<favorCompositionOverInheritance>>{
++accessModifier : java.lang.String
++keywords : java.util.List
++fields : java.util.List
++methods : java.util.List
++interfaces : java.util.List
++superClass : Domain.ClassElement
++dependencies : java.util.Map
++associations : java.util.Map
++<init>(Domain.Appearance, java.lang.String, java.lang.String, java.util.List) : void
++<init>(Domain.Appearance, java.lang.String) : void
++setInterfacesList(java.util.List) : void
++setSuperClass(Domain.ClassElement) : void
++setDependencies(java.util.Map) : void
++setAssociations(java.util.Map) : void
++setFields(java.util.List) : void
++hasDependencyTo(java.lang.String) : boolean
++hasAssociation(java.lang.String) : boolean
++setMethods(java.util.List) : void
++hasDrawnAssociationTo(java.lang.String) : boolean
++hasDrawnDependencyTo(java.lang.String) : boolean
++hasMultipleAssociationsTo(java.lang.String) : boolean
++hasMultipleDependenciesTo(java.lang.String) : boolean
++addRelationAnnotation(Domain.RelationAnnotation) : void
++addAnnotation(java.lang.String) : void
+}
+Domain.ClassElement  -up-|>  Domain.DiagramElement : Violates
+Domain.ClassElement  --> "*" Domain.FieldElement
+Domain.ClassElement  <--> "*" Domain.InterfaceElement
+Domain.ClassElement  --> "*" Domain.DiagramElement
+Domain.ClassElement  <-->  Domain.ClassElement
+Domain.ClassElement  ..>  Domain.Appearance
++class Domain.DependencyInversionViolationAnalyzer {
+-diagram : Domain.Diagram
++<init>(Domain.Diagram) : void
++analyze() : void
+-recursivelyCheckMethodCall(Domain.MethodCallElement) : void
+-checkDependencyInversionViolation(Domain.MethodCallElement) : void
+-checkImplementedInterfacesForViolation(Domain.MethodCallElement) : void
+-checkSuperClassesForViolation(Domain.MethodCallElement) : void
+-findViolation(Domain.MethodCallElement, java.util.List) : void
+-setViolationAppearance(Domain.DiagramElement) : void
++getMethodNameFromMethodSignature(java.lang.String) : java.lang.String
+}
+Domain.DependencyInversionViolationAnalyzer  -->  Domain.Diagram
+Domain.DependencyInversionViolationAnalyzer  ..>  Domain.MethodCallElement
+Domain.DependencyInversionViolationAnalyzer  ..>  Domain.DependencyInversionViolationAppearance
+Domain.DependencyInversionViolationAnalyzer  ..>  Domain.DiagramElement
++class Presentation.SequenceMain {
+-arguments : java.util.List
+-frontEnd : Presentation.FrontEnd
+-fileHandler : DataSource.FileHandler
+{static}+main(java.lang.String[]) : void
++<init>(java.lang.String[]) : void
+-parseArgs(java.lang.String[]) : void
++doParse(DataSource.SequenceAbstractParser, java.lang.String) : void
+}
+Presentation.SequenceMain  -->  DataSource.FileHandler
+Presentation.SequenceMain  -->  Presentation.FrontEnd
+Presentation.SequenceMain  --> "*" Presentation.SequenceArgument
+Presentation.SequenceMain  ..>  Domain.DependencyInversionViolationAnalyzer
+Presentation.SequenceMain  ..>  DataSource.SequenceAbstractParser
+Presentation.SequenceMain  ..>  DataSource.SequenceParseData
+Presentation.SequenceMain  ..>  DataSource.ASM
+Presentation.SequenceMain  ..>  Domain.Diagram
+Presentation.SequenceMain  ..>  DataSource.SequenceBaseParser
+Presentation.SequenceMain  ..>  Presentation.Console
+Presentation.SequenceMain  ..>  Presentation.RecursiveSequenceArgument
+Presentation.SequenceMain  ..>  Presentation.NoJavaArgument
++class Domain.AccessModifierFilter  <<adapter>>{
+-touchedElementNames : java.util.Set
+-comparator : Domain.AccessModifierComparator
++<init>(Domain.AccessModifierComparator) : void
++filterDiagram(java.util.List) : void
+-filterInterface(Domain.InterfaceElement) : void
+-filterClass(Domain.ClassElement) : void
+-removeFields(java.util.List) : void
+-removeMethods(java.util.List) : void
+-isClass(Domain.DiagramElement) : boolean
+-isInterface(Domain.DiagramElement) : boolean
+}
+Domain.AccessModifierFilter  .up.|>  Domain.DiagramFilter
+Domain.AccessModifierFilter  -->  Domain.AccessModifierComparator : adapts
+Domain.AccessModifierFilter  ..>  Domain.InterfaceElement
+Domain.AccessModifierFilter  ..>  Domain.DiagramElement
+Domain.AccessModifierFilter  ..>  Domain.ClassElement
++class DataSource.FieldNodeVisitor {
++<init>() : void
+}
++class Domain.DependencyInversionViolationAppearance {
++<init>(java.lang.String) : void
+}
+Domain.DependencyInversionViolationAppearance  -up-|>  Domain.Appearance
+Domain.DependencyInversionViolationAppearance  ..>  Domain.Appearance
++class Presentation.RecursiveSequenceArgument {
+~additionalInfo : int
++<init>() : void
++getSwitch() : java.lang.String
++getParseBehavior(DataSource.SequenceParseData, DataSource.SequenceAbstractParser) : DataSource.SequenceAbstractParser
++getDescription() : java.lang.String
++setAdditionalInfo(java.lang.String) : void
+}
+Presentation.RecursiveSequenceArgument  .up.|>  Presentation.SequenceArgument
+Presentation.RecursiveSequenceArgument  ..>  DataSource.SequenceAbstractParser
+Presentation.RecursiveSequenceArgument  ..>  DataSource.SequenceParseData
++interface DataSource.ParseBehavior {
+{abstract}+doBehavior(DataSource.AbstractParser) : void
+}
+DataSource.ParseBehavior ..>  DataSource.AbstractParser
++abstract class Domain.Appearance {
++color : java.lang.String
++<init>(java.lang.String) : void
++<init>() : void
+}
++class Presentation.DoNothingGenerator {
++<init>() : void
++generate(Domain.Appearance, java.lang.StringBuilder, Domain.Diagram) : void
+}
+Presentation.DoNothingGenerator  .up.|>  Domain.Generator
+Presentation.DoNothingGenerator  ..>  Domain.Diagram
+Presentation.DoNothingGenerator  ..>  Domain.Appearance
++class Presentation.ParameterGenerator {
+-parameterElement : Domain.ParameterElement
++<init>(Domain.ParameterElement) : void
++generate(Domain.Appearance, java.lang.StringBuilder, Domain.Diagram) : void
+}
+Presentation.ParameterGenerator  .up.|>  Domain.Generator
+Presentation.ParameterGenerator  ..>  Domain.Diagram
+Presentation.ParameterGenerator  ..>  Domain.Appearance
++class Domain.AdapterPatternAnalyzer {
+-diagram : Domain.Diagram
++<init>(Domain.Diagram) : void
++analyze() : void
+-filterAdaptedInterfaces(Domain.InterfaceElement, java.util.List) : boolean
+-getInterfacesForInterace(Domain.InterfaceElement) : java.util.List
+-filterAdaptedInterfaces(Domain.ClassElement, java.util.List) : boolean
+-showPattern(Domain.ClassElement, Domain.DiagramElement, java.util.List) : void
+-getMatchingMethod(Domain.MethodElement, Domain.ClassElement) : Domain.MethodElement
+-sameParameters(java.util.List, java.util.List) : boolean
+-getAbstractMethods(Domain.ClassElement) : java.util.List
+-getInterfaces(Domain.ClassElement) : java.util.List
+-getSuperClasses(Domain.ClassElement) : java.util.List
+}
+Domain.AdapterPatternAnalyzer  -->  Domain.Diagram
+Domain.AdapterPatternAnalyzer  ..>  Domain.InterfaceElement
+Domain.AdapterPatternAnalyzer  ..>  Domain.DiagramElement
+Domain.AdapterPatternAnalyzer  ..>  Domain.ClassElement
++class Presentation.NoJavaArgument {
++<init>() : void
++getSwitch() : java.lang.String
++getParseBehavior(DataSource.SequenceParseData, DataSource.SequenceAbstractParser) : DataSource.SequenceAbstractParser
++getDescription() : java.lang.String
++setAdditionalInfo(java.lang.String) : void
+}
+Presentation.NoJavaArgument  .up.|>  Presentation.SequenceArgument
+Presentation.NoJavaArgument  ..>  DataSource.SequenceAbstractParser
+Presentation.NoJavaArgument  ..>  DataSource.SequenceParseData
+Presentation.NoJavaArgument  ..>  DataSource.JavaFilterSequenceDecorator
++class Domain.FieldElement  <<favorCompositionOverInheritance>>{
++keywords : java.util.List
++type : java.lang.String
++accessModifier : java.lang.String
++<init>(Domain.Appearance, java.lang.String, java.lang.String, java.lang.String, java.util.List) : void
+}
+Domain.FieldElement  -up-|>  Domain.DiagramElement : Violates
+Domain.FieldElement  ..>  Domain.Appearance
+Domain.FieldElement  ..>  Domain.DiagramElement
++interface Presentation.Argument {
+{abstract}+getSwitch() : java.lang.String
+{abstract}+getParseBehavior(DataSource.ASMParseData, DataSource.AbstractParser) : DataSource.AbstractParser
+{abstract}+getDescription() : java.lang.String
+{abstract}+setAdditionalInfo(java.lang.String) : void
+}
+Presentation.Argument ..>  DataSource.AbstractParser
+Presentation.Argument ..>  DataSource.ASMParseData
++class DataSource.ASMBaseParser {
+-asmParseData : DataSource.ASMParseData
+-classNodes : java.util.List
+-classesAndInterfaces : java.util.Map
+-elements : java.util.List
+-primitives : java.util.Set
+-collections : java.util.List
+-classRecurser : DataSource.InheritanceRecursion
++<init>(DataSource.ASMParseData) : void
++doParseBehavior() : Domain.Diagram
++getClassNode(java.lang.String) : org.objectweb.asm.tree.ClassNode
+-createClassOrInterfaceElementFromClassNode(org.objectweb.asm.tree.ClassNode) : Domain.DiagramElement
+-addDiagramElementsToInterface(org.objectweb.asm.tree.ClassNode) : void
+-createDependenciesForInterface(org.objectweb.asm.tree.ClassNode) : java.util.Map
++addElementToRelationMap(Domain.DiagramElement, java.lang.String, java.util.Map) : void
++isPrimitive(java.lang.String) : boolean
++visitNodesAndAddToMap(java.lang.String, java.lang.String, java.util.Map) : void
+-addDiagramElementsToClass(org.objectweb.asm.tree.ClassNode) : void
+-createInterfaceElementsForClassNode(org.objectweb.asm.tree.ClassNode) : java.util.List
+-createSuperClassElementForClassNode(org.objectweb.asm.tree.ClassNode) : Domain.ClassElement
+-createDependenciesForClassNode(org.objectweb.asm.tree.ClassNode) : java.util.Map
+-addMethodOwnersToMethodElement(org.objectweb.asm.tree.MethodNode, Domain.MethodElement) : void
+-addMethodSignatureDependencies(org.objectweb.asm.tree.MethodNode, java.util.Map) : void
+-addMethodInsnNodeDependencies(org.objectweb.asm.tree.MethodNode, java.util.Map) : void
+~createMethodElementsForClassNode(org.objectweb.asm.tree.ClassNode) : java.util.List
+-createFieldElementsForClassNode(org.objectweb.asm.tree.ClassNode, java.util.Map) : java.util.List
+~createInterfaceElementFromClassNode(org.objectweb.asm.tree.ClassNode) : Domain.InterfaceElement
+~createClassElementFromClassNode(org.objectweb.asm.tree.ClassNode) : Domain.ClassElement
+-createNamelessParameters(org.objectweb.asm.tree.MethodNode, java.lang.String) : java.util.List
+-createParametersForMethodNode(org.objectweb.asm.tree.MethodNode, java.lang.String) : java.util.List
+-getAccessModifierFromAccess(int) : java.lang.String
+-getKeywordsFromAccess(int) : java.util.List
++visitAndReturnClasses(java.lang.String, java.lang.String, java.util.List) : java.util.List
++hasTargetInterface(java.lang.String, java.lang.String) : boolean
++getBaseClasses(DataSource.MyVisitor, java.util.List) : java.util.List
+}
+DataSource.ASMBaseParser  -up-|>  DataSource.AbstractParser
+DataSource.ASMBaseParser  <-->  DataSource.InheritanceRecursion
+DataSource.ASMBaseParser  --> "*" Domain.DiagramElement
+DataSource.ASMBaseParser  -->  DataSource.ASMParseData
+DataSource.ASMBaseParser  ..>  Domain.DefaultAppearance
+DataSource.ASMBaseParser  ..>  Presentation.ParameterGenerator
+DataSource.ASMBaseParser  ..>  Presentation.FieldGenerator
+DataSource.ASMBaseParser  ..>  DataSource.MyVisitor
+DataSource.ASMBaseParser  ..>  Presentation.MethodGenerator
+DataSource.ASMBaseParser  ..>  Domain.ClassElement
+DataSource.ASMBaseParser  ..> "*" Domain.FieldElement
+DataSource.ASMBaseParser  ..>  Domain.AccessModifierFilter
+DataSource.ASMBaseParser  ..>  Presentation.ClassGenerator
+DataSource.ASMBaseParser  ..>  Domain.Diagram
+DataSource.ASMBaseParser  ..>  Domain.InterfaceElement
+DataSource.ASMBaseParser  ..>  Presentation.InterfaceGenerator
+DataSource.ASMBaseParser  ..>  DataSource.AbstractParser
++abstract class DataSource.SequenceAbstractParser  <<component>>{
++<init>() : void
+{abstract}+doParseBehavior(java.lang.String) : Domain.Diagram
+}
+DataSource.SequenceAbstractParser  ..>  Domain.Diagram
++class Presentation.ClassGenerator {
+-classElement : Domain.ClassElement
+-primitives : java.util.Set
+-drawnAssociations : java.util.Set
+-drawnDependencies : java.util.Set
+-relationAnnotations : java.util.List
+-annotations : java.util.Set
++<init>(Domain.ClassElement) : void
++generate(Domain.Appearance, java.lang.StringBuilder, Domain.Diagram) : void
+-generateChildren(java.lang.StringBuilder, Domain.Diagram) : void
+-createClassNameMap(java.util.Map) : java.util.Map
+-generateRelations(java.lang.StringBuilder, Domain.Diagram) : void
+-drawArrow(java.lang.StringBuilder, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String) : void
++hasDrawnAssociationTo(java.lang.String) : boolean
++hasDrawnDependencyTo(java.lang.String) : boolean
++addRelationAnnotation(Domain.RelationAnnotation) : void
++addAnnotation(java.lang.String) : void
+-getAccessSymbol(java.lang.String) : java.lang.String
+}
+Presentation.ClassGenerator  .up.|>  Domain.Generator
+Presentation.ClassGenerator  -->  Domain.ClassElement
+Presentation.ClassGenerator  ..>  Domain.Diagram
+Presentation.ClassGenerator  ..>  Domain.Appearance
++class Domain.DecoratorPatternAnalyzer {
+-diagram : Domain.Diagram
++<init>(Domain.Diagram) : void
++analyze() : void
+-checkDecorator(Domain.ClassElement, java.util.List) : void
+-checkSuperClasses(Domain.ClassElement, java.util.List) : void
+-fieldIsAccessibleBySubClass(Domain.FieldElement) : boolean
+-findInterfaceElement(java.util.List, java.lang.String) : Domain.InterfaceElement
+-findClassElement(java.util.List, java.lang.String) : Domain.ClassElement
+-addAnnotations(Domain.ClassElement, Domain.ClassElement) : void
+-addAnnotations(Domain.ClassElement, Domain.InterfaceElement) : void
+-hasSameMethods(java.util.List, java.util.List, Domain.ClassElement) : boolean
+-checkSuperClassForAbstractMethod(Domain.ClassElement, Domain.MethodElement) : boolean
+-sameParameters(java.util.List, java.util.List) : boolean
+-getInterfacesForInterace(Domain.InterfaceElement) : java.util.List
+-getInterfaces(Domain.ClassElement) : java.util.List
+-getSuperClasses(Domain.ClassElement) : java.util.List
+}
+Domain.DecoratorPatternAnalyzer  -->  Domain.Diagram
+Domain.DecoratorPatternAnalyzer  ..>  Domain.FieldElement
+Domain.DecoratorPatternAnalyzer  ..>  Domain.InterfaceElement
+Domain.DecoratorPatternAnalyzer  ..>  Domain.ClassElement
++class Domain.JavaFilter  <<adapter>>{
+-noParseNames : java.util.Set
+-diagram : Domain.Diagram
++<init>(Domain.Diagram) : void
+-buildNoParseNames() : void
++filterDiagram(java.util.List) : void
+-removeMethodCallElements(java.util.List) : java.util.List
+-invalidParseName(java.lang.String) : boolean
+}
+Domain.JavaFilter  .up.|>  Domain.DiagramFilter
+Domain.JavaFilter  -->  Domain.Diagram : adapts
+Domain.JavaFilter  ..> "*" Domain.MethodCallElement
++class Presentation.Console {
+-scanner : java.util.Scanner
++<init>() : void
++getInput() : java.lang.String
++showOutput(java.lang.String) : void
++close() : void
+}
+Presentation.Console  .up.|>  Presentation.FrontEnd
++class Domain.DecoratorPatternAppearance {
++<init>(java.lang.String) : void
+}
+Domain.DecoratorPatternAppearance  -up-|>  Domain.Appearance
+Domain.DecoratorPatternAppearance  ..>  Domain.Appearance
++interface Presentation.SequenceArgument {
+{abstract}+getSwitch() : java.lang.String
+{abstract}+getParseBehavior(DataSource.SequenceParseData, DataSource.SequenceAbstractParser) : DataSource.SequenceAbstractParser
+{abstract}+getDescription() : java.lang.String
+{abstract}+setAdditionalInfo(java.lang.String) : void
+}
+Presentation.SequenceArgument ..>  DataSource.SequenceAbstractParser
+Presentation.SequenceArgument ..>  DataSource.SequenceParseData
++class DataSource.ASM {
++<init>() : void
++getClassNode(java.lang.String) : org.objectweb.asm.tree.ClassNode
+}
++class DataSource.SequenceParseData {
+~asm : DataSource.ASM
++recursiveDepth : int
++<init>(DataSource.ASM) : void
++getClassNode(java.lang.String) : org.objectweb.asm.tree.ClassNode
++replaceSlashes(java.lang.String) : java.lang.String
+}
+DataSource.SequenceParseData  -->  DataSource.ASM
++class Domain.DefaultAppearance {
++<init>() : void
+}
+Domain.DefaultAppearance  -up-|>  Domain.Appearance
+Domain.DefaultAppearance  ..>  Domain.Appearance
++class Presentation.Main {
+-arguments : java.util.List
+-frontEnd : Presentation.FrontEnd
+-fileHandler : DataSource.FileHandler
+{static}+main(java.lang.String[]) : void
++<init>(java.lang.String[]) : void
+-parseArgs(java.lang.String[]) : void
++doParse(DataSource.AbstractParser) : void
+}
+Presentation.Main  --> "*" Presentation.Argument
+Presentation.Main  -->  DataSource.FileHandler
+Presentation.Main  -->  Presentation.FrontEnd
+Presentation.Main  ..>  DataSource.ASM
+Presentation.Main  ..>  Domain.FavorCompositonOverInheritanceViolationAnalyzer
+Presentation.Main  ..>  Domain.AdapterPatternAnalyzer
+Presentation.Main  ..>  DataSource.ASMBaseParser
+Presentation.Main  ..>  Domain.Diagram
+Presentation.Main  ..>  Domain.DecoratorPatternAnalyzer
+Presentation.Main  ..>  Presentation.RecursiveArgument
+Presentation.Main  ..>  Presentation.Console
+Presentation.Main  ..>  Presentation.AccessModifierFilterArgument
+Presentation.Main  ..>  DataSource.ASMParseData
+Presentation.Main  ..>  DataSource.AbstractParser
++class Presentation.FieldGenerator {
+-fieldElement : Domain.FieldElement
++<init>(Domain.FieldElement) : void
++generate(Domain.Appearance, java.lang.StringBuilder, Domain.Diagram) : void
+-getAccessSymbol(java.lang.String) : java.lang.String
+}
+Presentation.FieldGenerator  .up.|>  Domain.Generator
+Presentation.FieldGenerator  -->  Domain.FieldElement
+Presentation.FieldGenerator  ..>  Domain.Diagram
+Presentation.FieldGenerator  ..>  Domain.Appearance
++class DataSource.FileHandler {
++<init>() : void
++writeToFile(java.lang.String, java.lang.StringBuilder) : void
+}
++class DataSource.JavaFilterSequenceDecorator  <<decorator>>{
+-parser : DataSource.SequenceAbstractParser
++<init>(DataSource.SequenceAbstractParser) : void
++doParseBehavior(java.lang.String) : Domain.Diagram
+}
+DataSource.JavaFilterSequenceDecorator  -up-|>  DataSource.SequenceAbstractParser
+DataSource.JavaFilterSequenceDecorator  -->  DataSource.SequenceAbstractParser : decorates
+DataSource.JavaFilterSequenceDecorator  ..>  Domain.Diagram
+DataSource.JavaFilterSequenceDecorator  ..>  Domain.JavaFilter
++class DataSource.PrivateParse  <<decorator>>{
++<init>(DataSource.ASMParseData, DataSource.AbstractParser) : void
++doParseBehavior() : Domain.Diagram
+}
+DataSource.PrivateParse  -up-|>  DataSource.ParseDecorator
+DataSource.PrivateParse  ..>  Domain.AccessModifierFilter
+DataSource.PrivateParse  ..>  DataSource.ParseDecorator
+DataSource.PrivateParse  ..>  Domain.Diagram
+DataSource.PrivateParse  ..>  DataSource.AbstractParser
+DataSource.PrivateParse  ..>  DataSource.ASMParseData
++class DataSource.SequenceBaseParser {
+~parseData : DataSource.SequenceParseData
+~elements : java.util.List
+~asmParser : DataSource.ASMBaseParser
+~topLevel : int
+~classRecurser : DataSource.InheritanceRecursion
++<init>(DataSource.SequenceParseData) : void
++doParseBehavior(java.lang.String) : Domain.Diagram
++parseMethodCalls(java.lang.String, int, java.lang.String, java.lang.String) : Domain.MethodCallElement
+-getMethodNodeWithName(org.objectweb.asm.tree.ClassNode, java.lang.String) : org.objectweb.asm.tree.MethodNode
+-getClassNodeWithName(java.lang.String) : org.objectweb.asm.tree.ClassNode
+-getMethodNodeWithMatchingArgs(org.objectweb.asm.tree.ClassNode, java.lang.String, java.util.List) : org.objectweb.asm.tree.MethodNode
+-isMethodCall(org.objectweb.asm.tree.AbstractInsnNode) : boolean
+-buildMethodSignature(org.objectweb.asm.Type[], org.objectweb.asm.tree.MethodInsnNode, java.lang.String) : java.lang.String
++getClassNameFromMethodSignature(java.lang.String) : java.lang.String
+-getMethodArgsFromMethodSignature(java.lang.String) : java.util.List
++getMethodNameFromMethodSignature(java.lang.String) : java.lang.String
+}
+DataSource.SequenceBaseParser  -up-|>  DataSource.SequenceAbstractParser
+DataSource.SequenceBaseParser  -->  DataSource.ASMBaseParser
+DataSource.SequenceBaseParser  -->  DataSource.SequenceParseData
+DataSource.SequenceBaseParser  -->  DataSource.InheritanceRecursion
+DataSource.SequenceBaseParser  --> "*" Domain.DiagramElement
+DataSource.SequenceBaseParser  ..>  DataSource.SequenceAbstractParser
+DataSource.SequenceBaseParser  ..>  Domain.AccessModifierFilter
+DataSource.SequenceBaseParser  ..>  Domain.Diagram
+DataSource.SequenceBaseParser  ..>  Domain.DefaultAppearance
+DataSource.SequenceBaseParser  ..>  Domain.MethodCallElement
+DataSource.SequenceBaseParser  ..>  Presentation.MethodCallGenerator
+DataSource.SequenceBaseParser  ..>  DataSource.ASMParseData
++class Domain.InterfaceElement  <<adaptee>> <<favorCompositionOverInheritance>>{
++keywords : java.util.List
++accessModifier : java.lang.String
++methods : java.util.List
++extendedInterfaces : java.util.List
++dependencies : java.util.Map
++superClass : Domain.ClassElement
++<init>(Domain.Appearance, java.lang.String, java.lang.String, java.util.List) : void
++setInterfaces(java.util.List) : void
++setSuperClass(Domain.ClassElement) : void
++setMethods(java.util.List) : void
++setDependencies(java.util.Map) : void
++hasDependencyTo(java.lang.String) : boolean
++generateChildren(java.lang.StringBuilder, Domain.Diagram) : void
++hasDrawnDependencyTo(java.lang.String) : boolean
++hasMultipleDependenciesTo(java.lang.String) : boolean
++addRelationAnnotation(Domain.RelationAnnotation) : void
++addAnnotation(java.lang.String) : void
+}
+Domain.InterfaceElement  -up-|>  Domain.DiagramElement : Violates
+Domain.InterfaceElement "*" <--> "*" Domain.InterfaceElement
+Domain.InterfaceElement  --> "*" Domain.DiagramElement
+Domain.InterfaceElement  ..>  Domain.Diagram
+Domain.InterfaceElement  ..>  Domain.Appearance
++class Domain.MethodCallElement  <<favorCompositionOverInheritance>>{
++callee : java.lang.String
++caller : java.lang.String
++returnType : java.lang.String
++methodCalls : java.util.List
++superClasses : java.util.List
++implementedInterfaces : java.util.List
++methodParams : java.util.List
++isAbstract : boolean
++<init>(Domain.Appearance, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.util.List) : void
++setMethodCallElements(java.util.List) : void
++setSuperClasses(java.util.List) : void
++setImplementedInterfaces(java.util.List) : void
++setAbstract(boolean) : void
+}
+Domain.MethodCallElement  -up-|>  Domain.DiagramElement : Violates
+Domain.MethodCallElement "*" <--> "*" Domain.MethodCallElement
+Domain.MethodCallElement  --> "*" Domain.InterfaceElement
+Domain.MethodCallElement  --> "*" Domain.ClassElement
+Domain.MethodCallElement  ..>  Domain.Appearance
+Domain.MethodCallElement  ..>  Domain.DiagramElement
++class Presentation.RecursiveArgument {
+~additionalInfo : int
++<init>() : void
++getSwitch() : java.lang.String
++getParseBehavior(DataSource.ASMParseData, DataSource.AbstractParser) : DataSource.AbstractParser
++getDescription() : java.lang.String
++setAdditionalInfo(java.lang.String) : void
+}
+Presentation.RecursiveArgument  .up.|>  Presentation.Argument
+Presentation.RecursiveArgument  ..>  DataSource.AbstractParser
+Presentation.RecursiveArgument  ..>  DataSource.RecursiveParse
+Presentation.RecursiveArgument  ..>  DataSource.ASMParseData
++interface Domain.AccessModifierComparator  <<adaptee>>{
+{abstract}+compare(java.lang.String) : boolean
+}
++class Presentation.AccessModifierFilterArgument {
+-accessLevel : java.lang.String
++<init>() : void
++getSwitch() : java.lang.String
++getParseBehavior(DataSource.ASMParseData, DataSource.AbstractParser) : DataSource.AbstractParser
++getDescription() : java.lang.String
++setAdditionalInfo(java.lang.String) : void
+}
+Presentation.AccessModifierFilterArgument  .up.|>  Presentation.Argument
+Presentation.AccessModifierFilterArgument  ..>  DataSource.PublicParse
+Presentation.AccessModifierFilterArgument  ..>  DataSource.ProtectedParse
+Presentation.AccessModifierFilterArgument  ..>  DataSource.PrivateParse
+Presentation.AccessModifierFilterArgument  ..>  DataSource.AbstractParser
+Presentation.AccessModifierFilterArgument  ..>  DataSource.ASMParseData
++class Presentation.InterfaceGenerator  <<adapter>>{
+-interfaceElement : Domain.InterfaceElement
+-drawnDependencies : java.util.Set
+-relationAnnotations : java.util.List
+-annotations : java.util.Set
++<init>(Domain.InterfaceElement) : void
++generate(Domain.Appearance, java.lang.StringBuilder, Domain.Diagram) : void
+-createClassNameMap(java.util.Map) : java.util.Map
++generateRelations(java.lang.StringBuilder, Domain.Diagram) : void
+-generateDependenciesToInterface(java.lang.StringBuilder, java.util.Map, java.lang.String, Domain.InterfaceElement) : void
+-generateDependenciesToClass(java.lang.StringBuilder, java.util.Map, java.lang.String, Domain.ClassElement) : void
++hasDrawnDependencyTo(java.lang.String) : boolean
++addRelationAnnotation(Domain.RelationAnnotation) : void
++addAnnotation(java.lang.String) : void
+-getAccessSymbol(java.lang.String) : java.lang.String
+}
+Presentation.InterfaceGenerator  .up.|>  Domain.Generator
+Presentation.InterfaceGenerator  -->  Domain.InterfaceElement : adapts
+Presentation.InterfaceGenerator  ..>  Domain.Diagram
+Presentation.InterfaceGenerator  ..>  Domain.Appearance
+Presentation.InterfaceGenerator  ..>  Domain.ClassElement
++abstract class DataSource.AbstractParser  <<component>>{
+#parseData : DataSource.ASMParseData
++<init>(DataSource.ASMParseData) : void
+{abstract}+doParseBehavior() : Domain.Diagram
+}
+DataSource.AbstractParser  -->  DataSource.ASMParseData
+DataSource.AbstractParser  ..>  Domain.Diagram
++class DataSource.ASMParseData {
++classNodes : java.util.List
++classNodeMap : java.util.Map
++classNamesToParse : java.util.Set
++asm : DataSource.ASM
++recursiveDepth : int
++<init>(DataSource.ASM, java.util.Set) : void
++getClassNode(java.lang.String) : org.objectweb.asm.tree.ClassNode
++replaceSlashes(java.lang.String) : java.lang.String
+}
+DataSource.ASMParseData  -->  DataSource.ASM
++class DataSource.ProtectedParse  <<decorator>>{
++<init>(DataSource.ASMParseData, DataSource.AbstractParser) : void
++doParseBehavior() : Domain.Diagram
+}
+DataSource.ProtectedParse  -up-|>  DataSource.ParseDecorator
+DataSource.ProtectedParse  ..>  Domain.AccessModifierFilter
+DataSource.ProtectedParse  ..>  DataSource.ParseDecorator
+DataSource.ProtectedParse  ..>  Domain.Diagram
+DataSource.ProtectedParse  ..>  DataSource.AbstractParser
+DataSource.ProtectedParse  ..>  DataSource.ASMParseData
++class DataSource.InheritanceRecursion {
+-asm : DataSource.ASM
+-asmParser : DataSource.ASMBaseParser
++<init>(DataSource.ASM, DataSource.ASMBaseParser) : void
+-getClassNodeWithName(java.lang.String) : org.objectweb.asm.tree.ClassNode
+-replaceSlashes(java.lang.String) : java.lang.String
++getSuperClasses(org.objectweb.asm.tree.ClassNode) : java.util.List
++getInterfaces(org.objectweb.asm.tree.ClassNode) : java.util.List
+}
+DataSource.InheritanceRecursion  -->  DataSource.ASM
+DataSource.InheritanceRecursion  ..> "*" Domain.InterfaceElement
+DataSource.InheritanceRecursion  ..> "*" Domain.ClassElement
++abstract class Domain.DiagramElement {
++appearance : Domain.Appearance
+#generator : Domain.Generator
++name : java.lang.String
++<init>(Domain.Appearance, java.lang.String) : void
++setAppearance(Domain.Appearance) : void
++setGenerator(Domain.Generator) : void
++generate(java.lang.StringBuilder, Domain.Diagram) : void
+}
+Domain.DiagramElement  -->  Domain.Appearance
+Domain.DiagramElement  -->  Domain.Generator
+Domain.DiagramElement  ..>  Domain.Diagram
++class Presentation.MethodGenerator {
+-methodElement : Domain.MethodElement
++<init>(Domain.MethodElement) : void
++generate(Domain.Appearance, java.lang.StringBuilder, Domain.Diagram) : void
+-getAccessSymbol(java.lang.String) : java.lang.String
+}
+Presentation.MethodGenerator  .up.|>  Domain.Generator
+Presentation.MethodGenerator  ..>  Domain.Diagram
+Presentation.MethodGenerator  ..>  Domain.Appearance
++interface Domain.DiagramFilter  <<target>>{
+{abstract}+filterDiagram(java.util.List) : void
+}
++class DataSource.RecursiveParse  <<decorator>>{
+-noRecursiveParse : java.util.Set
+-seenClassNodes : java.util.Set
+-asmParseData : DataSource.ASMParseData
++<init>(DataSource.ASMParseData, DataSource.AbstractParser) : void
+-buildNoRecursiveParse() : void
++doParseBehavior() : Domain.Diagram
+-addIfAbleToParse(java.util.Set, java.lang.String) : void
+-getReplacedSlashName(java.lang.String) : java.lang.String
+-getClassNodes(java.util.Set) : java.util.List
+-removeBrackets(java.lang.String) : java.lang.String
+-recursivelyBuildParseNames(java.util.Set, java.util.List, int) : void
+-addAllSuperTypeNames(java.util.Set, org.objectweb.asm.tree.ClassNode) : void
+-addMethodDependencies(org.objectweb.asm.tree.ClassNode, java.util.Set) : void
+-addLocalVariableDependencies(java.util.Set, org.objectweb.asm.tree.MethodNode) : void
+-addMethodReturnTypeDependency(java.util.Set, org.objectweb.asm.tree.MethodNode) : void
+-addMethodParameterDependencies(java.util.Set, org.objectweb.asm.tree.MethodNode) : void
+-addFields(org.objectweb.asm.tree.ClassNode, java.util.Set) : void
+-visitAndReturnClasses(java.lang.String, java.lang.String) : java.util.List
+}
+DataSource.RecursiveParse  -up-|>  DataSource.ParseDecorator
+DataSource.RecursiveParse  -->  DataSource.ASMParseData
+DataSource.RecursiveParse  ..>  DataSource.ParseDecorator
+DataSource.RecursiveParse  ..>  Domain.Diagram
+DataSource.RecursiveParse  ..>  DataSource.MyVisitor
+DataSource.RecursiveParse  ..>  DataSource.AbstractParser
++abstract class DataSource.ParseDecorator  <<decorator>> <<favorCompositionOverInheritance>>{
+#parser : DataSource.AbstractParser
++<init>(DataSource.ASMParseData, DataSource.AbstractParser) : void
+}
+DataSource.ParseDecorator  -up-|>  DataSource.AbstractParser : Violates
+DataSource.ParseDecorator  -->  DataSource.AbstractParser : decorates
+DataSource.ParseDecorator  ..>  DataSource.ASMParseData
++class Domain.Diagram  <<adaptee>>{
+-diagramElements : java.util.List
+-filter : Domain.DiagramFilter
++<init>(java.util.List, Domain.DiagramFilter) : void
++generate(java.lang.StringBuilder) : void
++setDiagramFilter(Domain.DiagramFilter) : void
++findDiagramElement(java.lang.String, java.lang.Class) : java.lang.Object
++findDiagramElements(java.lang.Class) : java.util.List
+}
+Domain.Diagram  --> "*" Domain.DiagramElement
+Domain.Diagram  -->  Domain.DiagramFilter
++class Presentation.MethodCallGenerator {
+-methodCallElement : Domain.MethodCallElement
+-hasGenerated : boolean
++<init>(Domain.MethodCallElement) : void
++generate(Domain.Appearance, java.lang.StringBuilder, Domain.Diagram) : void
+-callInnerMethodCalls(java.lang.StringBuilder, Domain.Diagram) : void
+}
+Presentation.MethodCallGenerator  .up.|>  Domain.Generator
+Presentation.MethodCallGenerator  -->  Domain.MethodCallElement
+Presentation.MethodCallGenerator  ..>  Domain.Diagram
+Presentation.MethodCallGenerator  ..>  Domain.Appearance
++interface Domain.Generator  <<target>>{
+{abstract}+generate(Domain.Appearance, java.lang.StringBuilder, Domain.Diagram) : void
+}
+Domain.Generator ..>  Domain.Diagram
+Domain.Generator ..>  Domain.Appearance
+@enduml
+

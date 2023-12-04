@@ -1,0 +1,94 @@
+@startuml
+autoactivate on
+
+participant ":SequenceMain" as main
+participant ":SequenceBaseParser" as parser
+participant ":SequenceParseData" as data
+participant ":MethodCallElement" as call
+participant ":FileHandler" as handler
+participant ":Diagram" as diagram
+participant ":DiagramElement" as element
+participant ":Generator" as generator
+
+[-> main : main(args)
+
+main --> handler ** : create()
+
+main -> main : parseArgs(args)
+
+main --> parser ** : create()
+main --> data ** : create()
+
+main -> main : doParse(sequenceParser, methodSignature)
+
+main -> parser : doParseBehavior(methodSignature)
+
+parser -> parser : getClassNameFromMethodSignature(methodSignature)
+return className
+
+parser -> parser : parseMethodCalls(methodSignature, recursiveDepth, caller, callee)
+
+parser -> parser : getMethodNameFromMethodSignature(methodSignature)
+return methodName
+
+parser -> parser : getClassNodeWithName(className)
+parser -> data : getClassNode(className)
+return classNode
+return classNode
+
+parser -> parser : getMethodNodeWithName(methodName)
+return methodNode
+
+loop AbstractInsnNode : insns
+parser -> parser : isMethodCall(insn)
+return isMethodCall
+end
+
+create call
+parser --> call : create()
+parser -> call : setGenerator(generator)
+return
+
+
+alt callee.equals("NONE")
+parser -> parser : getClassNameFromMethodSignature(methodSignature)
+return className
+end
+
+parser --> element ** : create()
+parser --> generator ** : create()
+
+loop MethodInsnNode : methodInstructionNodes
+parser -> parser : buildMethodSignature(paramTypes, insnNode, nextCallee)
+return methodSignature
+
+alt recursiveDepth != 0
+parser -> parser : parseMethodCalls(methodSignature, recursiveDepth-1, nextCallee, callee)
+return
+end
+
+end
+
+
+parser --> diagram ** : create()
+return
+
+return diagram
+
+main -> diagram : generate()
+
+loop DiagramElement : elements
+diagram -> element : generate(StringBuilder, Diagram)
+element -> generator : generate(Appearance, StringBuilder, Diagram)
+return
+return
+end
+
+return
+
+main -> handler : writeToFile(filepath, StringBuilder)
+return
+
+return
+return
+@enduml
